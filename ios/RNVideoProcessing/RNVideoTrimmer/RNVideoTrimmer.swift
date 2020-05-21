@@ -302,6 +302,7 @@ class RNVideoTrimmer: NSObject {
     let track = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
 
     //fix issue where boomerang effect on main camera video is rotated 90 degrees
+    /* Disable this fix due to issue video is rotated after trimming
     var transforms: CGAffineTransform?
     transforms = track?.preferredTransform
     transforms = CGAffineTransform(rotationAngle: 0)
@@ -311,6 +312,7 @@ class RNVideoTrimmer: NSObject {
       transforms = transforms?.concatenating(CGAffineTransform(translationX: 640, y: 0))
       track?.preferredTransform = transforms!
     }
+    */
     //end of fix
 
     var outputURL = documentDirectory.appendingPathComponent("output")
