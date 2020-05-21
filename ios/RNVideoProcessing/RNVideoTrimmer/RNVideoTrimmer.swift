@@ -218,6 +218,22 @@ class RNVideoTrimmer: NSObject {
         let timeRange = CMTimeRange(start: startTime, end: endTime)
 
         let composition = AVMutableComposition()
+        
+        // Fix issue when video is rotated after trimming
+        
+        let track = composition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+
+        let videoOrientation = self.getVideoOrientationFromAsset(asset: asset)
+
+        if ( videoOrientation == .up || videoOrientation == .down ) {
+          var transforms: CGAffineTransform?
+          transforms = track?.preferredTransform
+          transforms = CGAffineTransform(rotationAngle: 0)
+          transforms = transforms?.concatenating(CGAffineTransform(rotationAngle: CGFloat(90.0 * .pi / 180)))
+          track?.preferredTransform = transforms!
+         }
+        // end of fix
+        
         do {
           try composition.insertTimeRange(timeRange, of: asset, at: CMTime.zero)
         } catch {
@@ -302,7 +318,7 @@ class RNVideoTrimmer: NSObject {
     let track = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
 
     //fix issue where boomerang effect on main camera video is rotated 90 degrees
-    /* Disable this fix due to issue video is rotated after trimming
+
     var transforms: CGAffineTransform?
     transforms = track?.preferredTransform
     transforms = CGAffineTransform(rotationAngle: 0)
@@ -312,7 +328,7 @@ class RNVideoTrimmer: NSObject {
       transforms = transforms?.concatenating(CGAffineTransform(translationX: 640, y: 0))
       track?.preferredTransform = transforms!
     }
-    */
+    
     //end of fix
 
     var outputURL = documentDirectory.appendingPathComponent("output")
